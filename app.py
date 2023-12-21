@@ -1,15 +1,65 @@
-# Importing required packages
 import streamlit as st
+import hmac
 import openai
 import uuid
 import time
-import io
 from openai import OpenAI
 import os
 from dotenv import load_dotenv, find_dotenv
 _ = load_dotenv(find_dotenv())
 
-# Initialize OpenAI client
+#--------------------------------------------
+# LOGIN
+def check_password():
+    """Returns `True` if the user had a correct password."""
+
+    def login_form():
+        """Form with widgets to collect user information"""
+        with st.form("Credentials"):
+            st.text_input("Custom-GPT", key="gpt")
+            st.text_input("Passwort", type="password", key="password")
+            st.form_submit_button("Log in", on_click=password_entered)
+
+    def password_entered():
+        """Checks whether a password entered by the user is correct."""
+        if st.session_state["gpt"] in st.secrets["passwords"] and hmac.compare_digest(
+                st.session_state["password"],
+                st.secrets.passwords[st.session_state["gpt"]],
+        ):
+            st.session_state["password_correct"] = True
+            st.session_state["logged_in_user"] = st.session_state["gpt"]  
+            del st.session_state["password"]
+        else:
+            st.session_state["password_correct"] = False
+
+
+    if st.session_state.get("password_correct", False):
+        return True
+
+
+    login_form()
+    if "password_correct" in st.session_state:
+        st.error("😕 Custom GPT nicht bekannt oder Passwort falsch")
+    return False
+
+if not check_password():
+    st.stop()
+
+if "logged_in_user" in st.session_state:
+    custom_gpt = st.session_state["logged_in_user"]
+
+#-------------------------------------------
+# CUSTOM GPTS
+assistent_zuordnung = {
+    "kirenz": os.getenv('OPENAI_ASSISTANT'),
+    "ContentCrafter": os.getenv('ContentCrafter'),
+}
+
+custom_gpt = st.session_state["logged_in_user"]
+assistent_id = assistent_zuordnung[custom_gpt]
+
+#--------------------------------------------
+# INITIALIZE OPENAI
 client = OpenAI()
 MODEL = "gpt-4-1106-preview"
 
@@ -26,20 +76,22 @@ if "messages" not in st.session_state:
 if "retry_error" not in st.session_state:
     st.session_state.retry_error = 0
 
-# Set up the page
-st.set_page_config(page_title="GPT Assistant")
+#--------------------------------------------
+# APP STARTS HERE
+st.set_page_config(page_title="GPT")
+
+# Sidebar
 st.sidebar.title("Custom GPT")
-st.sidebar.divider()
-st.sidebar.markdown("Assistant GPT: Name")
+st.sidebar.write(custom_gpt)
 st.sidebar.divider()
 
-# Initialize OpenAI assistant
+#Initialize OpenAI
 if "assistant" not in st.session_state:
-    openai.api_key = os.getenv('OPENAI_API_KEY')
-    st.session_state.assistant = openai.beta.assistants.retrieve(os.getenv('OPENAI_ASSISTANT'))
-    st.session_state.thread = client.beta.threads.create(
-         metadata={'session_id': st.session_state.session_id}
-     )
+     openai.api_key = os.getenv('OPENAI_API_KEY')
+     st.session_state.assistant = openai.beta.assistants.retrieve(assistent_id)
+     st.session_state.thread = client.beta.threads.create(
+          metadata={'session_id': st.session_state.session_id}
+      )
 
 # Display chat messages
 elif hasattr(st.session_state.run, 'status') and st.session_state.run.status == "completed":
@@ -70,9 +122,11 @@ if prompt := st.chat_input("Wie kann ich Ihnen helfen?"):
         thread_id=st.session_state.thread.id,
         assistant_id=st.session_state.assistant.id,
     )
-    if st.session_state.retry_error < 3:
-        time.sleep(1)
-        st.rerun()
+
+    with st.spinner('Antwort wird generiert...'):
+        if st.session_state.retry_error < 3:
+            time.sleep(1)
+            st.rerun()
 
 # Handle run status
 if hasattr(st.session_state.run, 'status'):
@@ -91,7 +145,7 @@ if hasattr(st.session_state.run, 'status'):
                 time.sleep(3)
                 st.rerun()
             else:
-                st.error("FEHLER: Die OpenAI-API verarbeitet derzeit zu viele Anfragen. Bitte versuchen Sie es später erneut ......")
+                st.error("Fehler: Die OpenAI-API verarbeitet derzeit zu viele Anfragen. Bitte versuchen Sie es später erneut ......")
 
     elif st.session_state.run.status != "completed":
         st.session_state.run = client.beta.threads.runs.retrieve(
@@ -101,3 +155,5 @@ if hasattr(st.session_state.run, 'status'):
         if st.session_state.retry_error < 3:
             time.sleep(3)
             st.rerun()
+
+#-------------------------------------------
