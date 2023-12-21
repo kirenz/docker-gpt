@@ -1,8 +1,10 @@
-# Installation auf Ubuntu 22.04
+# Installationshinweise 
+
+Einrichtung eines Streamlit Dashboards mit OpenAI Assistants API als Docker-Container in der BW-Cloud und Bereitstellung auf einer https-Adresse.
 
 ### Streamlit und Docker
 
-[Streamlit mit Docker aufsetzen](https://docs.streamlit.io/knowledge-base/tutorials/deploy/docker)
+[Streamlit mit Docker in der BW-Cloud aufsetzen](https://docs.streamlit.io/knowledge-base/tutorials/deploy/docker)
 
 ### Reverse Proxy
 
@@ -79,4 +81,9 @@ Dashboard 2:
 docker run -p 8502:8501 <IhrDockerImage>
 ```
 
+## Https
+
+Https-Zertifikat beantragen für BW-Cloud .org Adresse  (Nginx auf Ubuntu):
+
+- [certbot instructions](https://certbot.eff.org/instructions?ws=nginx&os=ubuntufocal)
 
