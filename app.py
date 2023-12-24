@@ -4,6 +4,7 @@ import openai
 import uuid
 import time
 from openai import OpenAI
+from assistent import gpts
 import os
 from dotenv import load_dotenv, find_dotenv
 _ = load_dotenv(find_dotenv())
@@ -49,12 +50,7 @@ if "logged_in_user" in st.session_state:
     custom_gpt = st.session_state["logged_in_user"]
 
 #-------------------------------------------
-# CUSTOM GPTS
-gpts = {
-    "kirenz": os.getenv('OPENAI_ASSISTANT'),
-    "ContentCrafter": os.getenv('ContentCrafter'),
-}
-
+# SELECT CUSTOM GPT
 custom_gpt = st.session_state["logged_in_user"]
 assistent_id = gpts[custom_gpt]
 
@@ -83,6 +79,7 @@ st.set_page_config(page_title="GPT")
 # Sidebar
 st.sidebar.title("Custom GPT")
 st.sidebar.write(custom_gpt)
+st.sidebar.write("*Bitte eine Anfrage zu dem entsprechendem Themengebiet in das Chatfenster eingeben*")
 st.sidebar.divider()
 
 #Initialize OpenAI
@@ -106,7 +103,7 @@ elif hasattr(st.session_state.run, 'status') and st.session_state.run.status == 
                     st.markdown(message_text)
 
 # Chat input and message creation
-if prompt := st.chat_input("Wie kann ich Ihnen helfen?"):
+if prompt := st.chat_input("Wie kann ich weiterhelfen?"):
     with st.chat_message('user'):
         st.write(prompt)
 
