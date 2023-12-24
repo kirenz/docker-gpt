@@ -69,6 +69,12 @@ sudo ufw allow 'Nginx Full'
 
 ## Docker starten
 
+Dashoboard erstellen
+
+```bash
+sudo docker build -t docker-gpt .
+```
+
 Dashboard 1 (streamlit):
 
 ```bash
@@ -78,7 +84,7 @@ sudo docker run -p 8501:8501 streamlit
 Dashboard 2:
 
 ```bash
-docker run -p 8502:8501 <IhrDockerImage>
+sudo docker run -p 8502:8501 <IhrDockerImage>
 ```
 
 ## Https
