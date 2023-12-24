@@ -50,13 +50,13 @@ if "logged_in_user" in st.session_state:
 
 #-------------------------------------------
 # CUSTOM GPTS
-assistent_zuordnung = {
+gpts = {
     "kirenz": os.getenv('OPENAI_ASSISTANT'),
     "ContentCrafter": os.getenv('ContentCrafter'),
 }
 
 custom_gpt = st.session_state["logged_in_user"]
-assistent_id = assistent_zuordnung[custom_gpt]
+assistent_id = gpts[custom_gpt]
 
 #--------------------------------------------
 # INITIALIZE OPENAI
