@@ -40,7 +40,7 @@ def check_password():
 
     login_form()
     if "password_correct" in st.session_state:
-        st.error("😕 Custom GPT nicht bekannt oder Passwort falsch")
+        st.error("😕 AI Tutor nicht bekannt oder Passwort falsch")
     return False
 
 if not check_password():
