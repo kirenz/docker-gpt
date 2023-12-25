@@ -72,7 +72,7 @@ sudo ufw allow 'Nginx Full'
 Dashoboard erstellen
 
 ```bash
-sudo docker build -t docker-gpt .
+sudo docker build -t streamlit .
 ```
 
 Dashboard 1 (streamlit):
