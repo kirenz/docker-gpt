@@ -17,7 +17,7 @@ def check_password():
     def login_form():
         """Form with widgets to collect user information"""
         with st.form("Credentials"):
-            st.text_input("Custom-GPT", key="gpt")
+            st.text_input("AI Tutor", key="gpt")
             st.text_input("Passwort", type="password", key="password")
             st.form_submit_button("Log in", on_click=password_entered)
 
@@ -74,10 +74,10 @@ if "retry_error" not in st.session_state:
 
 #--------------------------------------------
 # APP STARTS HERE
-st.set_page_config(page_title="GPT")
+st.set_page_config(page_title="AI Tutor")
 
 # Sidebar
-st.sidebar.title("Custom GPT")
+st.sidebar.title("AI Tutor")
 st.sidebar.write(custom_gpt)
 st.sidebar.write("*Bitte eine Anfrage zu dem entsprechendem Themengebiet in das Chatfenster eingeben*")
 st.sidebar.divider()
@@ -104,6 +104,7 @@ elif hasattr(st.session_state.run, 'status') and st.session_state.run.status == 
 
 # Chat input and message creation
 if prompt := st.chat_input("Wie kann ich weiterhelfen?"):
+
     with st.chat_message('user'):
         st.write(prompt)
 
@@ -120,16 +121,17 @@ if prompt := st.chat_input("Wie kann ich weiterhelfen?"):
         assistant_id=st.session_state.assistant.id,
     )
 
-    with st.spinner('Antwort wird generiert...'):
+    with st.spinner('Antwort wird generiert ...'):
         if st.session_state.retry_error < 3:
             time.sleep(1)
             st.rerun()
+
 
 # Handle run status
 if hasattr(st.session_state.run, 'status'):
     if st.session_state.run.status == "running":
         with st.chat_message('assistant'):
-            st.write("Antwort wird erzeugt ......")
+            st.write("Antwort wird erzeugt ...")
         if st.session_state.retry_error < 3:
             time.sleep(1)
             st.rerun()
@@ -138,11 +140,11 @@ if hasattr(st.session_state.run, 'status'):
         st.session_state.retry_error += 1
         with st.chat_message('assistant'):
             if st.session_state.retry_error < 3:
-                st.write("Ausführung fehlgeschlagen, erneuter Versuch ......")
+                st.write("Ausführung fehlgeschlagen, erneuter Versuch ...")
                 time.sleep(3)
                 st.rerun()
             else:
-                st.error("Fehler: Die OpenAI-API verarbeitet derzeit zu viele Anfragen. Bitte versuchen Sie es später erneut ......")
+                st.error("Fehler: Die OpenAI-API verarbeitet derzeit zu viele Anfragen. Bitte versuchen Sie es später erneut ...")
 
     elif st.session_state.run.status != "completed":
         st.session_state.run = client.beta.threads.runs.retrieve(
